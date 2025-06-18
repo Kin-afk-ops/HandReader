@@ -1,8 +1,8 @@
 import { Text, TouchableOpacity, View } from "react-native";
 import LayoutScreen from "@/components/LayoutScreen";
-import Header from "@/components/Header";
 import { MaterialIcons } from "@expo/vector-icons";
 import SupportBlock from "@/components/SupportBlock";
+import Header from "@/components/Header";
 
 export default function Index() {
   return (
