@@ -18,10 +18,13 @@ const Header = () => {
 
       <View className="flex-row ">
         <TouchableOpacity
-          className="ml-2"
+          className="ml-2 relative"
           onPress={() => router.push("/notification")}
         >
           <MaterialIcons name="notifications" size={45} color="#5f605a" />
+          <View className="absolute rounded-[50%] bg-red-500 w-[20px] h-[20px] items-center justify-center left-[60%]">
+            <Text className="text-white">1</Text>
+          </View>
         </TouchableOpacity>
         <TouchableOpacity
           className="ml-2"
