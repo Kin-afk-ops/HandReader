@@ -22,27 +22,27 @@ const InformationApp = () => {
             <Text className="text-third text-3xl font-bold">
               Tác giả & Hướng dẫn
             </Text>
-            <View className="mt-4 space-y-2">
-              <View className="flex-row">
-                <Text className="font-bold w-[100px]">Tác giả:</Text>
-                <Text className="flex-1">Nguyễn Vũ Linh</Text>
+            <View className="mt-4 w-full">
+              <View className="flex-row w-full">
+                <Text className="font-bold w-[20%]">Tác giả:</Text>
+                <Text className="">Nguyễn Vũ Linh</Text>
               </View>
 
-              <View className="flex-row">
-                <Text className="font-bold w-[100px]">Hướng dẫn:</Text>
-                <Text className="flex-1">TS. Nguyễn Công Danh</Text>
+              <View className="flex-row w-full">
+                <Text className="font-bold w-[30%]">Hướng dẫn:</Text>
+                <Text className="">TS. Nguyễn Công Danh</Text>
               </View>
 
-              <View className="flex-row">
-                <Text className="font-bold w-[100px]">Đơn vị:</Text>
-                <Text className="flex-1">
+              <View className=" w-full ">
+                <Text className="font-bold">Đơn vị:</Text>
+                <Text className="text-justify">
                   Khoa Công nghệ phần mềm – Trường CNTT & TT
                 </Text>
               </View>
 
-              <View className="flex-row">
-                <Text className="font-bold w-[100px]">Công nghệ:</Text>
-                <Text className="flex-1">
+              <View className="flex-row w-full">
+                <Text className="font-bold">Công nghệ:</Text>
+                <Text className="">
                   React Native, Flask, VietOCR, PostgreSQL
                 </Text>
               </View>
