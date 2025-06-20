@@ -92,6 +92,13 @@ const _Layout = () => {
           href: null,
         }}
       />
+
+      <Tabs.Screen
+        name="feedback"
+        options={{
+          href: null,
+        }}
+      />
     </Tabs>
   );
 };

@@ -5,7 +5,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 
 const SupportBlock = () => {
   return (
-    <View className="absolute top-[95%] w-full h-[100px] flex-row justify-between">
+    <View className="absolute top-[100%] w-full h-[100px] flex-row justify-between">
       <TouchableOpacity>
         <BlurView
           intensity={50}
