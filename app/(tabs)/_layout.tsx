@@ -99,6 +99,13 @@ const _Layout = () => {
           href: null,
         }}
       />
+
+      <Tabs.Screen
+        name="picture"
+        options={{
+          href: null,
+        }}
+      />
     </Tabs>
   );
 };
