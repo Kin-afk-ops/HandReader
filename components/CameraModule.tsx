@@ -44,10 +44,11 @@ export default function CameraModule({
         };
         const takenPhoto = await cameraRef.current.takePictureAsync(options);
         setPhoto(takenPhoto);
+        setTakePhoto(false);
       }
     };
     handleTakePhoto();
-  }, [takePhoto, setPhoto]);
+  }, [takePhoto, setPhoto, setTakePhoto]);
 
   if (!permission) {
     return <View />;
@@ -79,15 +80,15 @@ export default function CameraModule({
     setTakePhoto(false);
   };
 
-  if (photo)
-    return (
-      <View className="flex-1 justify-center h-full  relative">
-        <PhotoPreviewSection
-          photo={photo}
-          handleRetakePhoto={handleRetakePhoto}
-        />
-      </View>
-    );
+  // if (photo)
+  //   return (
+  //     <View className="flex-1 justify-center h-full  relative">
+  //       <PhotoPreviewSection
+  //         photo={photo}
+  //         handleRetakePhoto={handleRetakePhoto}
+  //       />
+  //     </View>
+  //   );
 
   return (
     <View className="flex-1 justify-center h-full w-full relative">
@@ -96,6 +97,7 @@ export default function CameraModule({
         facing={facing}
         ref={cameraRef}
         mirror={true}
+        responsiveOrientationWhenOrientationLocked={false}
       />
     </View>
   );

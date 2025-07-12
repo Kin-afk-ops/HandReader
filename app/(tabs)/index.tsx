@@ -1,4 +1,4 @@
-import { Image, Text, TouchableOpacity, View } from "react-native";
+import { BackHandler, Image, Text, TouchableOpacity, View } from "react-native";
 import LayoutScreen from "@/components/LayoutScreen";
 import { MaterialIcons } from "@expo/vector-icons";
 import SupportBlock from "@/components/SupportBlock";
@@ -12,12 +12,59 @@ import * as Speech from "expo-speech";
 
 export default function Index() {
   const router = useRouter();
-  const [onCamera, setOnCamera] = useState<boolean>(false);
   const [takePhoto, setTakePhoto] = useState<boolean>(false);
   const [photo, setPhoto] = useState<any>(null);
   const [textResult, setTextResult] = useState<string | null>(null);
+  const [isCameraScreen, setIsCameraScreen] = useState<boolean>(true);
+  console.log(isCameraScreen);
 
   useEffect(() => {
+    Speech.speak("Bạn đang ở màn hình camera", {
+      language: "vi-VN",
+      pitch: 1.0,
+      rate: 1.0,
+    });
+
+    const backAction = () => {
+      // Nếu bạn muốn tự xử lý (ví dụ: xác nhận thoát)
+      Speech.stop();
+
+      Speech.speak("Bạn đang ở màn hình camera", {
+        language: "vi-VN",
+        pitch: 1.0,
+        rate: 1.0,
+      });
+
+      setPhoto(null);
+      setTakePhoto(false);
+      setTextResult(null);
+      setIsCameraScreen(true);
+      router.push("/");
+
+      return true; // Ngăn mặc định
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      backAction
+    );
+
+    return () => backHandler.remove();
+  }, [router]);
+
+  useEffect(() => {
+    const readNotification = () => {
+      Speech.speak(
+        "Bạn đang ở màn hình kết quả. Vuốt sang trái hoặc ấn nút trở về để quay lại màn hình Camera.",
+        {
+          language: "vi-VN", // 🇻🇳 tiếng Việt
+          rate: 1.0, // tốc độ đọc
+          pitch: 1.0, // độ cao giọng
+        }
+      );
+      getTextResults();
+    };
+
     const getTextResults = async (): Promise<void> => {
       try {
         const res = await axios.post(
@@ -33,45 +80,29 @@ export default function Index() {
         );
         setTextResult(res?.data.response_message);
 
-        if (!res?.data.response_message) return;
+        if (!res?.data.response_message || isCameraScreen) return;
 
-        Speech.speak("Thế giớ thật tuyệt vời", {
+        Speech.speak(res?.data.response_message, {
           language: "vi-VN", // 🇻🇳 tiếng Việt
           rate: 1.0, // tốc độ đọc
           pitch: 1.0, // độ cao giọng
         });
+
+        if (isCameraScreen) Speech.stop();
       } catch (error) {
         console.log(error);
       }
     };
-    photo && getTextResults();
-  }, [photo]);
+
+    if (photo) {
+      readNotification();
+    }
+  }, [photo, isCameraScreen]);
 
   return (
     <LayoutScreen>
       <View className="relative">
         <Header />
-
-        <TouchableOpacity
-          onPress={() => {
-            setOnCamera(!onCamera);
-            setTakePhoto(false);
-          }}
-        >
-          <Text> bat/tat cam</Text>
-        </TouchableOpacity>
-        {/* {onCamera ? (
-          <View className="h-[300px] w-[300px] mt-8 rounded-[10px]">
-            <CameraModule
-              takePhoto={takePhoto}
-              setTakePhoto={setTakePhoto}
-              setPhoto={setPhoto}
-              photo={photo}
-            />
-          </View>
-        ) : (
-          <View className="w-full bg-red-400 h-[300px] mt-8 rounded-[10px]"></View>
-        )} */}
 
         {photo ? (
           <View className="w-[300px] h-[400px] mt-8 rounded-[10px] overflow-hidden relative">
@@ -105,9 +136,16 @@ export default function Index() {
             <TouchableOpacity
               className="w-[70%] items-center px-4 py-2 bg-white border border-[#ccc] rounded-[10px]"
               onPress={() => {
+                Speech.stop();
                 setPhoto(null);
                 setTakePhoto(false);
                 setTextResult(null);
+
+                Speech.speak("Bạn đang ở màn hình Camera", {
+                  language: "vi-VN", // 🇻🇳 tiếng Việt
+                  rate: 1.0, // tốc độ đọc
+                  pitch: 1.0, // độ cao giọng
+                });
               }}
             >
               <Text className="text-xl">Trờ về Camera</Text>
@@ -116,7 +154,11 @@ export default function Index() {
         ) : (
           <TouchableOpacity
             className="mt-12 items-center"
-            onPress={() => setTakePhoto(true)}
+            onPress={() => {
+              Speech.stop();
+              setTakePhoto(true);
+              setIsCameraScreen(false);
+            }}
           >
             <MaterialIcons name="camera-alt" size={90} color="#fff" />
           </TouchableOpacity>
