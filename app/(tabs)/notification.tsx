@@ -1,4 +1,5 @@
 import BlurLayout from "@/components/BlurLayout";
+import Header from "@/components/Header";
 import LayoutScreen from "@/components/LayoutScreen";
 import { BlurView } from "expo-blur";
 import { StyleSheet, Text, View } from "react-native";
@@ -6,6 +7,7 @@ import { StyleSheet, Text, View } from "react-native";
 const Notification = () => {
   return (
     <LayoutScreen>
+      <Header screenType="" />
       <BlurLayout>
         <View className="bg-[#5ce1e6] rounded-[10px] overflow-hidden mt-4 w-full">
           <BlurView intensity={100} tint="light" className="w-[100%] px-4 py-4">

@@ -3,12 +3,14 @@ import LayoutScreen from "@/components/LayoutScreen";
 import { MaterialIcons } from "@expo/vector-icons";
 import SupportBlock from "@/components/SupportBlock";
 import Header from "@/components/Header";
-import { Redirect, useRouter } from "expo-router";
+import { Redirect, useFocusEffect, useRouter } from "expo-router";
 import CameraModule from "@/components/CameraModule";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { BlurView } from "expo-blur";
 import axios from "axios";
 import * as Speech from "expo-speech";
+import { loadSpeechSettings } from "@/utils/speech/speechSettings";
+import expoSpeech from "@/utils/speech/expoSpeech";
 
 export default function Index() {
   const router = useRouter();
@@ -16,77 +18,57 @@ export default function Index() {
   const [photo, setPhoto] = useState<any>(null);
   const [textResult, setTextResult] = useState<string | null>(null);
   const [isCameraScreen, setIsCameraScreen] = useState<boolean>(true);
-  console.log(isCameraScreen);
+  const [speechSettings, setSpeechSettings] = useState<{
+    voice: string;
+    rate: number;
+    pitch: number;
+    language: string;
+  } | null>(null);
 
-  useEffect(() => {
-    Speech.speak("Bạn đang ở màn hình camera", {
-      language: "vi-VN",
-      pitch: 1.0,
-      rate: 1.0,
-    });
-
-    const backAction = () => {
-      // Nếu bạn muốn tự xử lý (ví dụ: xác nhận thoát)
-      Speech.stop();
-
-      Speech.speak("Bạn đang ở màn hình camera", {
-        language: "vi-VN",
-        pitch: 1.0,
-        rate: 1.0,
-      });
-
-      setPhoto(null);
-      setTakePhoto(false);
-      setTextResult(null);
-      setIsCameraScreen(true);
-      router.push("/");
-
-      return true; // Ngăn mặc định
-    };
-
-    const backHandler = BackHandler.addEventListener(
-      "hardwareBackPress",
-      backAction
+  const listVoices = async () => {
+    const voices = await Speech.getAvailableVoicesAsync();
+    const vietnameseVoices = voices.filter((voice) =>
+      voice.language.toLowerCase().startsWith("vi")
     );
+    console.log("Vietnamese voices:", vietnameseVoices);
+  };
 
-    return () => backHandler.remove();
-  }, [router]);
+  // listVoices();
+
+  useFocusEffect(
+    useCallback(() => {
+      const loadSpeechSetting = async (): Promise<void> => {
+        const getSetting = await loadSpeechSettings();
+        setSpeechSettings(getSetting);
+      };
+
+      loadSpeechSetting();
+
+      // Optional cleanup nếu cần
+      return () => {};
+    }, [])
+  );
 
   useEffect(() => {
-    const readNotification = () => {
-      Speech.speak(
-        "Bạn đang ở màn hình kết quả. Vuốt sang trái hoặc ấn nút trở về để quay lại màn hình Camera.",
-        {
-          language: "vi-VN", // 🇻🇳 tiếng Việt
-          rate: 1.0, // tốc độ đọc
-          pitch: 1.0, // độ cao giọng
-        }
-      );
-      getTextResults();
-    };
-
     const getTextResults = async (): Promise<void> => {
       try {
-        const res = await axios.post(
-          "https://primate-crucial-blatantly.ngrok-free.app/ocr",
-          {
-            base64_img: photo.base64,
-          },
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        setTextResult(res?.data.response_message);
+        // const res = await axios.post(
+        //   "https://primate-crucial-blatantly.ngrok-free.app/ocr",
+        //   {
+        //     base64_img: photo.base64,
+        //   },
+        //   {
+        //     headers: {
+        //       "Content-Type": "application/json",
+        //     },
+        //   }
+        // );
+        setTextResult("hihi haha");
 
-        if (!res?.data.response_message || isCameraScreen) return;
-
-        Speech.speak(res?.data.response_message, {
-          language: "vi-VN", // 🇻🇳 tiếng Việt
-          rate: 1.0, // tốc độ đọc
-          pitch: 1.0, // độ cao giọng
-        });
+        // if (!res?.data.response_message || isCameraScreen) return;
+        setTimeout(() => {
+          expoSpeech("hihi haha", speechSettings);
+        }, 3000);
 
         if (isCameraScreen) Speech.stop();
       } catch (error) {
@@ -95,14 +77,15 @@ export default function Index() {
     };
 
     if (photo) {
-      readNotification();
+      // readNotification();
+      getTextResults();
     }
-  }, [photo, isCameraScreen]);
+  }, [photo, isCameraScreen, speechSettings]);
 
   return (
     <LayoutScreen>
       <View className="relative">
-        <Header />
+        <Header screenType={photo ? "Màn hình kết quả" : "Màn hình Camera"} />
 
         {photo ? (
           <View className="w-[300px] h-[400px] mt-8 rounded-[10px] overflow-hidden relative">
@@ -135,17 +118,14 @@ export default function Index() {
           <View className="w-full mt-12 items-center">
             <TouchableOpacity
               className="w-[70%] items-center px-4 py-2 bg-white border border-[#ccc] rounded-[10px]"
+              accessibilityLabel="Quay về màn hình camera"
               onPress={() => {
                 Speech.stop();
                 setPhoto(null);
                 setTakePhoto(false);
                 setTextResult(null);
-
-                Speech.speak("Bạn đang ở màn hình Camera", {
-                  language: "vi-VN", // 🇻🇳 tiếng Việt
-                  rate: 1.0, // tốc độ đọc
-                  pitch: 1.0, // độ cao giọng
-                });
+                setIsCameraScreen(true);
+                router.push("/");
               }}
             >
               <Text className="text-xl">Trờ về Camera</Text>
@@ -153,9 +133,9 @@ export default function Index() {
           </View>
         ) : (
           <TouchableOpacity
-            className="mt-12 items-center"
+            className="mt-4 items-center"
+            accessibilityLabel="Chụp ảnh văn bản"
             onPress={() => {
-              Speech.stop();
               setTakePhoto(true);
               setIsCameraScreen(false);
             }}

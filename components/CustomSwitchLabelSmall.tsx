@@ -12,11 +12,27 @@ type Props = {
   label1: string;
   label2: string;
   onToggle: (enabled: boolean) => void;
+  stateInitValue: boolean;
 };
 
-const CustomSwitchLabelSmall = ({ label1, label2, onToggle }: Props) => {
-  const [enabled, setEnabled] = useState(false);
+const CustomSwitchLabelSmall = ({
+  label1,
+  label2,
+  onToggle,
+  stateInitValue,
+}: Props) => {
+  const [enabled, setEnabled] = useState(stateInitValue);
   const animatedValue = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    setEnabled(stateInitValue);
+    Animated.timing(animatedValue, {
+      toValue: stateInitValue ? 1 : 0,
+      duration: 300,
+      useNativeDriver: false,
+    }).start();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stateInitValue]);
 
   useEffect(() => {
     Animated.timing(animatedValue, {
