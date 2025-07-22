@@ -11,9 +11,12 @@ import axios from "axios";
 import * as Speech from "expo-speech";
 import { loadSpeechSettings } from "@/utils/speech/speechSettings";
 import expoSpeech from "@/utils/speech/expoSpeech";
+import { useUser } from "@/contexts/UserContext";
+import LoadingScreen from "../LoadingScreen";
 
 export default function Index() {
   const router = useRouter();
+  const { user } = useUser();
   const [takePhoto, setTakePhoto] = useState<boolean>(false);
   const [photo, setPhoto] = useState<any>(null);
   const [textResult, setTextResult] = useState<string | null>(null);
@@ -40,6 +43,11 @@ export default function Index() {
       const loadSpeechSetting = async (): Promise<void> => {
         const getSetting = await loadSpeechSettings();
         setSpeechSettings(getSetting);
+        Speech.stop();
+        setPhoto(null);
+        setTakePhoto(false);
+        setTextResult(null);
+        setIsCameraScreen(true);
       };
 
       loadSpeechSetting();
@@ -81,6 +89,9 @@ export default function Index() {
       getTextResults();
     }
   }, [photo, isCameraScreen, speechSettings]);
+
+  if (!user) return <LoadingScreen />;
+  console.log(user);
 
   return (
     <LayoutScreen>

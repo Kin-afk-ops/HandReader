@@ -1,13 +1,22 @@
-import { Text, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 import React from "react";
 import LayoutScreen from "@/components/LayoutScreen";
 import BlurLayout from "@/components/BlurLayout";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const InformationApp = () => {
+  const handleLogout = async (): Promise<void> => {
+    await AsyncStorage.removeItem("userInfo");
+    console.log("ok");
+  };
+
   return (
     <LayoutScreen>
       <BlurLayout>
         <View className="h-[100%] justify-around">
+          <TouchableOpacity onPress={handleLogout}>
+            <Text>Logout</Text>
+          </TouchableOpacity>
           <View className="px-4 py-8 rounded-[10px] items-center bg-white ">
             <Text className="text-third text-3xl font-bold">GIỚI THIỆU</Text>
             <Text className="text-base mt-2 text-justify">
