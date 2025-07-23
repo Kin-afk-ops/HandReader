@@ -89,7 +89,7 @@ export default function Index() {
       getTextResults();
     }
   }, [photo, isCameraScreen, speechSettings]);
-
+  console.log(user);
   if (!user) return <LoadingScreen />;
 
   return (

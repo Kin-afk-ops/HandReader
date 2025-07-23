@@ -46,28 +46,29 @@ const Header: React.FC<childProps> = ({ screenType }) => {
         {screenType}
       </Text>
 
-      {screenType !== "Màn hình Camera" && (
-        <TouchableOpacity
-          accessible={true}
-          accessibilityLabel="Quay về màn hình camera"
-          onPress={goToCamera}
-          className="mr-2"
-        >
-          <MaterialIcons name="camera-alt" size={45} color="#2563eb" />
-        </TouchableOpacity>
-      )}
-
       <View className="flex-row ">
-        <TouchableOpacity
-          className="ml-2 relative"
-          onPress={() => router.push("/notification")}
-          accessibilityLabel={`Vào màn hình thông báo. Có 1 thông báo mới`}
-        >
-          <MaterialIcons name="notifications" size={45} color="#5f605a" />
-          <View className="absolute rounded-[50%] bg-red-500 w-[20px] h-[20px] items-center justify-center left-[60%]">
-            <Text className="text-white">1</Text>
-          </View>
-        </TouchableOpacity>
+        {screenType !== "Màn hình Camera" && (
+          <TouchableOpacity
+            accessible={true}
+            accessibilityLabel="Quay về màn hình camera"
+            onPress={goToCamera}
+            className="mr-2"
+          >
+            <MaterialIcons name="camera-alt" size={45} color="#2563eb" />
+          </TouchableOpacity>
+        )}
+        {screenType !== "Màn hình thông báo" && (
+          <TouchableOpacity
+            className="ml-2 relative"
+            onPress={() => router.push("/notification")}
+            accessibilityLabel={`Vào màn hình thông báo. Có 1 thông báo mới`}
+          >
+            <MaterialIcons name="notifications" size={45} color="#5f605a" />
+            <View className="absolute rounded-[50%] bg-red-500 w-[20px] h-[20px] items-center justify-center left-[60%]">
+              <Text className="text-white">1</Text>
+            </View>
+          </TouchableOpacity>
+        )}
 
         {screenType !== "Màn hình cài đặt" && (
           <TouchableOpacity
