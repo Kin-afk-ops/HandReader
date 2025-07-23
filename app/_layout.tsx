@@ -10,12 +10,6 @@ import { AppInitializer } from "./AppInitializer";
 export default function RootLayout() {
   const { user, setUser } = useUser();
 
-  useEffect(() => {
-    console.log("Giá trị user trong Provider đã đổi:", user);
-  }, [user]);
-
-  console.log(user);
-
   return (
     <UserProvider>
       <HighContrastProvider>

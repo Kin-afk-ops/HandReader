@@ -71,12 +71,12 @@ export default function Index() {
         //     },
         //   }
         // );
-        setTextResult("hihi haha");
 
         // if (!res?.data.response_message || isCameraScreen) return;
+        setTextResult("hihi haha");
         setTimeout(() => {
           expoSpeech("hihi haha", speechSettings);
-        }, 3000);
+        }, 100);
 
         if (isCameraScreen) Speech.stop();
       } catch (error) {
@@ -91,7 +91,6 @@ export default function Index() {
   }, [photo, isCameraScreen, speechSettings]);
 
   if (!user) return <LoadingScreen />;
-  console.log(user);
 
   return (
     <LayoutScreen>

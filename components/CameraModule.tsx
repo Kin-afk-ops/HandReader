@@ -3,8 +3,13 @@ import { CameraType, CameraView, useCameraPermissions } from "expo-camera";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
+import mime from "mime";
 
 import PhotoPreviewSection from "./PhotoPreviewSection";
+import axiosInstance from "@/api/axiosInstance";
+import { useUser } from "@/contexts/UserContext";
+import LoadingScreen from "@/app/LoadingScreen";
+import axios from "axios";
 
 interface ChildProps {
   takePhoto: boolean;
@@ -19,6 +24,9 @@ export default function CameraModule({
   photo,
   setPhoto,
 }: ChildProps) {
+  const { user } = useUser();
+  const [loading, setLoading] = useState<boolean>(false);
+
   const [facing, setFacing] = useState<CameraType>("back");
   const [permission, requestPermission] = useCameraPermissions();
   const [cameraActive, setCameraActive] = useState(true);
@@ -34,6 +42,53 @@ export default function CameraModule({
     }, [])
   );
 
+  const uploadPhotoToServer = async (photo: any, userId: string) => {
+    const newImageUri = "file:///" + photo.uri.split("file:/").join("");
+
+    const fileUri = photo.uri;
+    const fileName = fileUri.split("/").pop() || "photo.jpg";
+    const fileType = "image/jpeg"; // hoặc từ photo.type nếu có
+
+    const formData = new FormData();
+    formData.append("image", {
+      uri: newImageUri,
+      name: newImageUri.split("/").pop(),
+      type: mime.getType(photo.uri) || "image/jpeg", // fallback,
+    } as any);
+
+    formData.append("user_id", userId);
+    formData.append("source", "camera");
+
+    //   await axios
+    //     .post("http://localhost:9999/images", formData, {
+    //       headers: {
+    //         Accept: "application/json",
+    //       },
+    //     })
+    //     .then((response) => console.log(response.data))
+    //     .catch((error) => console.log(error));
+    // };
+
+    try {
+      const response = await fetch(
+        "https://evident-kingfish-actual.ngrok-free.app/images",
+        {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            // KHÔNG đặt Content-Type ở đây!
+          },
+          body: formData,
+        }
+      );
+
+      const json = await response.json();
+      console.log("Upload response:", json);
+    } catch (error) {
+      console.log("Upload error:", error);
+    }
+  };
+
   useEffect(() => {
     const handleTakePhoto = async () => {
       if (cameraRef.current && takePhoto) {
@@ -45,10 +100,17 @@ export default function CameraModule({
         const takenPhoto = await cameraRef.current.takePictureAsync(options);
         setPhoto(takenPhoto);
         setTakePhoto(false);
+
+        if (user) {
+          console.log("Đang gửi");
+          const resImage = await uploadPhotoToServer(takenPhoto, user.id);
+
+          console.log(resImage);
+        }
       }
     };
     handleTakePhoto();
-  }, [takePhoto, setPhoto, setTakePhoto]);
+  }, [takePhoto, setPhoto, setTakePhoto, user, photo]);
 
   if (!permission) {
     return <View />;
