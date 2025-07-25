@@ -5,15 +5,22 @@ import {
   findNodeHandle,
   AccessibilityInfo,
 } from "react-native";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { useUser } from "@/contexts/UserContext";
+import axiosInstance from "@/api/axiosInstance";
+import LoadingScreen from "@/app/LoadingScreen";
+import { useNotification } from "@/contexts/NotificationContext";
 
 interface childProps {
   screenType: string;
 }
 
 const Header: React.FC<childProps> = ({ screenType }) => {
+  const { user } = useUser();
+
+  const { notification } = useNotification();
   const router = useRouter();
   const titleRef = useRef<Text>(null);
   useEffect(() => {
@@ -64,9 +71,11 @@ const Header: React.FC<childProps> = ({ screenType }) => {
             accessibilityLabel={`Vào màn hình thông báo. Có 1 thông báo mới`}
           >
             <MaterialIcons name="notifications" size={45} color="#5f605a" />
-            <View className="absolute rounded-[50%] bg-red-500 w-[20px] h-[20px] items-center justify-center left-[60%]">
-              <Text className="text-white">1</Text>
-            </View>
+            {notification?.unread !== 0 && (
+              <View className="absolute rounded-[50%] bg-red-500 w-[20px] h-[20px] items-center justify-center left-[60%]">
+                <Text className="text-white">{notification?.unread}</Text>
+              </View>
+            )}
           </TouchableOpacity>
         )}
 

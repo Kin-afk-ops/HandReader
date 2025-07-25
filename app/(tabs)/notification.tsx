@@ -6,18 +6,32 @@ import NotificationItem from "@/components/NotificationItem";
 import { useUser } from "@/contexts/UserContext";
 import { FA5Style } from "@expo/vector-icons/build/FontAwesome5";
 import { BlurView } from "expo-blur";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import LoadingScreen from "../LoadingScreen";
+import { useNotification } from "@/contexts/NotificationContext";
+import { useFocusEffect } from "expo-router";
+import { loadSpeechSettings } from "@/utils/speech/speechSettings";
+import * as Speech from "expo-speech";
 
 const Notification = () => {
   const { user } = useUser();
-  const [moreBtnDisplay, setMoreBtnDisplay] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [speechSettings, setSpeechSettings] = useState<{
+    voice: string;
+    rate: number;
+    pitch: number;
+    language: string;
+  } | null>(null);
+
+  const [moreBtnDisplay, setMoreBtnDisplay] = useState<boolean>(false);
+  const { notification } = useNotification();
   const [notifications, setNotifications] = useState<
     | {
         id: string;
         user_id: string;
-        is_read: boolean;
         message: string;
+        is_read: boolean;
         created_at: Date;
       }[]
     | null
@@ -25,23 +39,48 @@ const Notification = () => {
   const [offset, setOffset] = useState<number>(0);
   const limit = 10;
 
+  useFocusEffect(
+    useCallback(() => {
+      const loadSpeechSetting = async (): Promise<void> => {
+        const getSetting = await loadSpeechSettings();
+        setSpeechSettings(getSetting);
+        Speech.stop();
+      };
+
+      loadSpeechSetting();
+
+      // Optional cleanup nếu cần
+      return () => {};
+    }, [])
+  );
+
   useEffect(() => {
     const getNotifications = async (): Promise<void> => {
-      if (user) {
-        await axiosInstance
-          .get(`/notifications/user/${user.id}?offset=${offset}&limit=${limit}`)
-          .then((res) => {
-            const newNotifications = res.data;
-            setNotifications((prev) => [
-              ...(prev ?? []), // giữ lại thông báo cũ (nếu null thì dùng [])
-              ...newNotifications, // thêm các thông báo mới
-            ]);
-          })
-          .catch((error) => {
-            console.log(error);
-            setMoreBtnDisplay(false);
-          });
-        console.log("load");
+      setLoading(true);
+
+      try {
+        if (user) {
+          await axiosInstance
+            .get(
+              `/notifications/user/${user.id}?offset=${offset}&limit=${limit}`
+            )
+            .then((res) => {
+              const newNotifications = res.data;
+              setNotifications((prev) => [
+                ...(prev ?? []), // giữ lại thông báo cũ (nếu null thì dùng [])
+                ...newNotifications, // thêm các thông báo mới
+              ]);
+            })
+            .catch((error) => {
+              console.log(error);
+              setMoreBtnDisplay(false);
+            });
+          console.log("load");
+        }
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
       }
     };
     getNotifications();
@@ -51,17 +90,32 @@ const Notification = () => {
     setOffset((prev) => (prev += 10));
   };
 
+  useEffect(() => {
+    if (notification?.total != null && Array.isArray(notifications)) {
+      if (notifications.length >= notification.total) {
+        setMoreBtnDisplay(false);
+      } else {
+        setMoreBtnDisplay(true);
+      }
+    }
+  }, [notification, notifications]);
+
+  if (loading) return <LoadingScreen />;
+
   return (
     <LayoutScreen>
       <Header screenType="Màn hình thông báo" />
 
       <BlurLayout>
-        <Text
-          className="text-[16px] text-secondary"
-          accessibilityLabel="QCó 10 thông báo chưa đọc"
-        >
-          Có 10 thông báo chưa đọc
-        </Text>
+        {notification?.unread !== 0 && (
+          <Text
+            className="text-[16px] text-secondary"
+            accessibilityLabel={`Có ${notification?.unread} thông báo chưa đọc`}
+          >
+            Có {notification?.unread} thông báo chưa đọc
+          </Text>
+        )}
+
         <View className="mt-2">
           {notifications?.length !== 0 ? (
             notifications?.map((noti) => (
@@ -70,6 +124,8 @@ const Notification = () => {
                 content={noti.message || "Không có nội dung"}
                 isRead={noti.is_read}
                 createAt={noti.created_at}
+                notificationId={noti?.id}
+                speechSettings={speechSettings}
               />
             ))
           ) : (
@@ -89,13 +145,6 @@ const Notification = () => {
             </Text>
           </TouchableOpacity>
         )}
-
-        {/* <NotificationItem
-          content="
-Lorem ipsum dolor sit amet consectetur adipisicing elit. Deserunt voluptatibus libero eveniet animi sit sed, amet perferendis, natus tempora itaque quia obcaecati assumenda nisi? Porro quaerat velit voluptatem laborum repudiandae!
-"
-          isRead={false}
-        /> */}
       </BlurLayout>
     </LayoutScreen>
   );

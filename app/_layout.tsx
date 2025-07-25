@@ -5,21 +5,21 @@ import { HighContrastProvider } from "@/contexts/HighContrastContext";
 import { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { UserProvider, useUser } from "@/contexts/UserContext";
-import { AppInitializer } from "./AppInitializer";
+import { NotificationProvider } from "@/contexts/NotificationContext";
 
 export default function RootLayout() {
-  const { user, setUser } = useUser();
-
   return (
     <UserProvider>
       <HighContrastProvider>
-        <Stack>
-          <Stack.Screen
-            name="AppInitializer"
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        </Stack>
+        <NotificationProvider>
+          <Stack>
+            <Stack.Screen
+              name="AppInitializer"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          </Stack>
+        </NotificationProvider>
       </HighContrastProvider>
     </UserProvider>
   );

@@ -6,9 +6,11 @@ import { useUser } from "@/contexts/UserContext";
 import { generateAutoUsername } from "@/utils/auth/generateAutoUsername";
 import axiosInstance from "@/api/axiosInstance";
 import { ActivityIndicator, View } from "react-native";
+import { useNotification } from "@/contexts/NotificationContext";
 
 const AppInitializer = () => {
   const { user, setUser } = useUser();
+  const { notification, setNotification } = useNotification();
   const router = useRouter();
 
   useEffect(() => {
@@ -40,6 +42,23 @@ const AppInitializer = () => {
 
     checkLogin();
   }, [router, setUser]);
+
+  useEffect(() => {
+    const checkNotification = async (): Promise<void> => {
+      try {
+        if (user) {
+          const res = await axiosInstance.get(
+            `/notifications/length/${user.id}`
+          );
+          setNotification(res.data);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    checkNotification();
+  }, [user, setNotification]);
 
   return null;
 };

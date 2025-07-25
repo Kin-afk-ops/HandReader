@@ -7,16 +7,18 @@ import { Redirect, useFocusEffect, useRouter } from "expo-router";
 import CameraModule from "@/components/CameraModule";
 import { useCallback, useEffect, useState } from "react";
 import { BlurView } from "expo-blur";
-import axios from "axios";
 import * as Speech from "expo-speech";
 import { loadSpeechSettings } from "@/utils/speech/speechSettings";
 import expoSpeech from "@/utils/speech/expoSpeech";
 import { useUser } from "@/contexts/UserContext";
 import LoadingScreen from "../LoadingScreen";
+import { useNotification } from "@/contexts/NotificationContext";
 
 export default function Index() {
   const router = useRouter();
   const { user } = useUser();
+  const { notification } = useNotification();
+  const [loading, setLoading] = useState<boolean>(false);
   const [takePhoto, setTakePhoto] = useState<boolean>(false);
   const [photo, setPhoto] = useState<any>(null);
   const [textResult, setTextResult] = useState<string | null>(null);
@@ -90,7 +92,8 @@ export default function Index() {
     }
   }, [photo, isCameraScreen, speechSettings]);
   console.log(user);
-  if (!user) return <LoadingScreen />;
+  if (!user || !notification) return <LoadingScreen />;
+  if (loading) return <LoadingScreen />;
 
   return (
     <LayoutScreen>

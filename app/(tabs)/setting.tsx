@@ -25,10 +25,12 @@ import {
   saveHightContrastMode,
 } from "@/utils/hightContrastMode/hightContrastMode";
 import { useHighContrast } from "@/contexts/HighContrastContext";
+import LoadingScreen from "../LoadingScreen";
 
 const Setting = () => {
   // const [hightContrastMode, setHightContrastMode] = useState<boolean>(false);
   const { mode, setMode } = useHighContrast();
+  const [loading, setLoading] = useState<boolean>(false);
 
   const [speechSettings, setSpeechSettings] = useState<{
     voice: string;
@@ -208,7 +210,7 @@ const Setting = () => {
     }
   };
 
-  console.log(mode);
+  if (loading) return <LoadingScreen />;
 
   return (
     <LayoutScreen>
