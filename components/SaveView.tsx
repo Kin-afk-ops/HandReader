@@ -1,20 +1,17 @@
 import { Text, TouchableOpacity, View } from "react-native";
 import React, { useEffect, useState } from "react";
-
+import { MaterialIcons } from "@expo/vector-icons";
+import SaveItem from "./SaveItem";
 import { useUser } from "@/contexts/UserContext";
-import axiosInstance from "@/api/axiosInstance";
-import HistoryItem from "./HistoryItem";
 import LoadingComponent from "./LoadingComponent";
+import axiosInstance from "@/api/axiosInstance";
 
-const HistoryView = () => {
+const SaveView = () => {
   const { user } = useUser();
-  const [currentPlayingId, setCurrentPlayingId] = useState<string | null>(null);
   const [moreBtnDisplay, setMoreBtnDisplay] = useState<boolean>(false);
   const [offset, setOffset] = useState<number>(0);
   const limit = 10;
-  const [totalHistories, setTotalHistories] = useState<number | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [histories, setHistories] = useState<
+  const [saves, setSaves] = useState<
     | {
         id: string;
         user_id: string;
@@ -27,18 +24,24 @@ const HistoryView = () => {
       }[]
     | null
   >(null);
+  const [totalSaves, setTotalSaves] = useState<number | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const [currentPlayingId, setCurrentPlayingId] = useState<string | null>(null);
+
   useEffect(() => {
     const getItems = async () => {
       setLoading(true);
       try {
         if (user) {
           const res = await axiosInstance.get(
-            `/histories/userId/${user.id}?offset=${offset}&limit=${limit}`
+            `/histories/save/${user.id}?offset=${offset}&limit=${limit}`
           );
 
-          setHistories(res.data);
+          setSaves(res.data);
 
-          setTotalHistories(res.data.length);
+          // setTotalSaves(res.data.length);
+          setTotalSaves(10);
         }
       } catch (error) {
         console.log(error);
@@ -56,30 +59,29 @@ const HistoryView = () => {
   };
 
   useEffect(() => {
-    if (totalHistories != null && Array.isArray(histories)) {
-      if (histories.length >= totalHistories) {
+    if (totalSaves != null && Array.isArray(saves)) {
+      if (saves.length >= totalSaves) {
         setMoreBtnDisplay(false);
       } else {
         setMoreBtnDisplay(true);
       }
     }
-  }, [totalHistories, histories]);
+  }, [totalSaves, saves]);
 
   if (loading) return <LoadingComponent />;
-
   return (
     <View>
-      {histories ? (
-        histories.map((history) => (
-          <HistoryItem
-            key={history.id}
-            history={history}
-            currentPlayingId={currentPlayingId}
+      {saves ? (
+        saves.map((save) => (
+          <SaveItem
+            key={save.id}
+            save={save}
             setCurrentPlayingId={setCurrentPlayingId}
+            currentPlayingId={currentPlayingId}
           />
         ))
       ) : (
-        <Text>Không có lịch sử</Text>
+        <Text>Không có bản lưu nào</Text>
       )}
 
       {moreBtnDisplay && (
@@ -88,7 +90,7 @@ const HistoryView = () => {
           className="mt-4 px-4 py-2 bg-blue-500 rounded-lg items-center"
         >
           <Text className="text-white font-semibold text-base">
-            Xem lịch sử trước đó
+            Xem bản lưu trước đó
           </Text>
         </TouchableOpacity>
       )}
@@ -96,4 +98,4 @@ const HistoryView = () => {
   );
 };
 
-export default HistoryView;
+export default SaveView;

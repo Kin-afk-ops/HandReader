@@ -1,15 +1,15 @@
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import React, { useCallback, useState } from "react";
-import { MaterialIcons } from "@expo/vector-icons";
 import formatVietnameseDocumentDate from "@/utils/formatVietnameseDate";
-import { useFocusEffect } from "expo-router";
 import { loadSpeechSettings } from "@/utils/speech/speechSettings";
+import { MaterialIcons } from "@expo/vector-icons";
+import { useFocusEffect } from "expo-router";
+import { useCallback, useState } from "react";
+import { Text, TouchableOpacity, View } from "react-native";
 import * as Speech from "expo-speech";
-import expoSpeech from "@/utils/speech/expoSpeech";
 import axiosInstance from "@/api/axiosInstance";
+import expoSpeech from "@/utils/speech/expoSpeech";
 
-interface childProp {
-  history: {
+interface ChildProps {
+  save: {
     id: string;
     user_id: string;
     result_id: string;
@@ -23,12 +23,12 @@ interface childProp {
   setCurrentPlayingId: (id: string | null) => void;
 }
 
-const HistoryItem: React.FC<childProp> = ({
-  history,
+const SaveItem: React.FC<ChildProps> = ({
+  save,
   currentPlayingId,
   setCurrentPlayingId,
 }) => {
-  const isPlaying = currentPlayingId === history?.id;
+  const isPlaying = currentPlayingId === save?.id;
   const [isSave, setIsSave] = useState<boolean>(false);
   const [speechSettings, setSpeechSettings] = useState<{
     voice: string;
@@ -46,8 +46,8 @@ const HistoryItem: React.FC<childProp> = ({
       };
 
       const loadSave = () => {
-        if (history) {
-          setIsSave(history.is_saved_by_user);
+        if (save) {
+          setIsSave(save.is_saved_by_user);
         }
       };
 
@@ -60,15 +60,15 @@ const HistoryItem: React.FC<childProp> = ({
   );
 
   const handlePlayAudio = () => {
-    if (!history || !speechSettings) return;
+    if (!save || !speechSettings) return;
     if (isPlaying) {
       Speech.stop();
       setCurrentPlayingId(null);
     } else {
       Speech.stop();
-      setCurrentPlayingId(history.id);
+      setCurrentPlayingId(save.id);
 
-      Speech.speak(history.recognized_text, {
+      Speech.speak(save.recognized_text, {
         voice: speechSettings.voice,
         rate: speechSettings.rate,
         pitch: speechSettings.pitch,
@@ -81,11 +81,11 @@ const HistoryItem: React.FC<childProp> = ({
   };
 
   const handleSave = async (): Promise<void> => {
-    if (!history) return;
+    if (!save) return;
 
     if (isSave) {
       await axiosInstance
-        .put(`/recognition-results/${history?.result_id}`, {
+        .put(`/recognition-results/${save?.result_id}`, {
           is_saved_by_user: false,
         })
         .then((res) => {
@@ -99,7 +99,7 @@ const HistoryItem: React.FC<childProp> = ({
         });
     } else {
       await axiosInstance
-        .put(`/recognition-results/${history?.result_id}`, {
+        .put(`/recognition-results/${save?.result_id}`, {
           is_saved_by_user: true,
         })
         .then((res) => {
@@ -118,7 +118,8 @@ const HistoryItem: React.FC<childProp> = ({
     <View className="w-full bg-white my-2 py-4 px-2 rounded-[10px] flex-row">
       <View className="w-[70%]">
         <Text className="text-[12px]">
-          {history && formatVietnameseDocumentDate(history.viewed_at)}
+          {" "}
+          {save && formatVietnameseDocumentDate(save.created_at)}
         </Text>
       </View>
 
@@ -133,6 +134,7 @@ const HistoryItem: React.FC<childProp> = ({
             <MaterialIcons name="play-arrow" size={40} color="#8c52ff" />
           )}
         </TouchableOpacity>
+
         <TouchableOpacity
           onPress={handleSave}
           accessibilityLabel="Lưu hoặc bỏ lưu văn bản"
@@ -148,4 +150,4 @@ const HistoryItem: React.FC<childProp> = ({
   );
 };
 
-export default HistoryItem;
+export default SaveItem;
