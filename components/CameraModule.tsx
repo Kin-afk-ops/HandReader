@@ -16,6 +16,8 @@ interface ChildProps {
   setTakePhoto: React.Dispatch<React.SetStateAction<boolean>>;
   setPhoto: React.Dispatch<React.SetStateAction<any>>;
   photo: any;
+
+  setImageId: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
 export default function CameraModule({
@@ -23,6 +25,7 @@ export default function CameraModule({
   setTakePhoto,
   photo,
   setPhoto,
+  setImageId,
 }: ChildProps) {
   const { user } = useUser();
   const [loading, setLoading] = useState<boolean>(false);
@@ -42,12 +45,13 @@ export default function CameraModule({
     }, [])
   );
 
-  const uploadPhotoToServer = async (photo: any, userId: string) => {
+  const uploadPhotoToServer = async (
+    photo: any,
+    userId: string
+  ): Promise<any> => {
     const newImageUri = "file:///" + photo.uri.split("file:/").join("");
 
     const fileUri = photo.uri;
-    const fileName = fileUri.split("/").pop() || "photo.jpg";
-    const fileType = "image/jpeg"; // hoặc từ photo.type nếu có
 
     const formData = new FormData();
     formData.append("image", {
@@ -59,16 +63,6 @@ export default function CameraModule({
     formData.append("user_id", userId);
     formData.append("source", "camera");
 
-    //   await axios
-    //     .post("http://localhost:9999/images", formData, {
-    //       headers: {
-    //         Accept: "application/json",
-    //       },
-    //     })
-    //     .then((response) => console.log(response.data))
-    //     .catch((error) => console.log(error));
-    // };
-
     try {
       const response = await fetch(
         "https://evident-kingfish-actual.ngrok-free.app/images",
@@ -76,14 +70,13 @@ export default function CameraModule({
           method: "POST",
           headers: {
             Accept: "application/json",
-            // KHÔNG đặt Content-Type ở đây!
           },
           body: formData,
         }
       );
 
       const json = await response.json();
-      console.log("Upload response:", json);
+      return json;
     } catch (error) {
       console.log("Upload error:", error);
     }
@@ -104,13 +97,15 @@ export default function CameraModule({
         if (user) {
           console.log("Đang gửi");
           const resImage = await uploadPhotoToServer(takenPhoto, user.id);
-
-          console.log(resImage);
+          if (resImage) {
+            setImageId(resImage.id);
+          }
         }
       }
     };
     handleTakePhoto();
-  }, [takePhoto, setPhoto, setTakePhoto, user, photo]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [takePhoto]);
 
   if (!permission) {
     return <View />;

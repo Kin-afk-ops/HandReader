@@ -29,16 +29,24 @@ const HistoryView = () => {
   >(null);
   useEffect(() => {
     const getItems = async () => {
-      setLoading(true);
+      if (!histories) setLoading(true);
       try {
         if (user) {
           const res = await axiosInstance.get(
             `/histories/userId/${user.id}?offset=${offset}&limit=${limit}`
           );
 
-          setHistories(res.data);
+          const newHistories = res.data;
+          setHistories((prev) => [
+            ...(prev ?? []), // giữ lại thông báo cũ (nếu null thì dùng [])
+            ...newHistories, // thêm các thông báo mới
+          ]);
 
-          setTotalHistories(res.data.length);
+          const resTotal = await axiosInstance.get(
+            `/histories/length/${user.id}`
+          );
+
+          setTotalHistories(resTotal.data.total);
         }
       } catch (error) {
         console.log(error);
@@ -49,6 +57,7 @@ const HistoryView = () => {
     };
 
     getItems();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, offset]);
 
   const loadSeeMore = () => {

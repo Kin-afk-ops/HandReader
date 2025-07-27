@@ -13,6 +13,9 @@ import expoSpeech from "@/utils/speech/expoSpeech";
 import { useUser } from "@/contexts/UserContext";
 import LoadingScreen from "../LoadingScreen";
 import { useNotification } from "@/contexts/NotificationContext";
+import axiosInstance from "@/api/axiosInstance";
+import LoadingComponent from "@/components/LoadingComponent";
+import ResultScreen from "@/components/ResultScreen";
 
 export default function Index() {
   const router = useRouter();
@@ -29,6 +32,12 @@ export default function Index() {
     pitch: number;
     language: string;
   } | null>(null);
+  const [imageId, setImageId] = useState<string | null>(null);
+  const [imageIdForFeedback, setImageIdForFeedback] = useState<string | null>(
+    null
+  );
+  const [resultId, setResultId] = useState<string | null>(null);
+  const [resultMode, setResultMode] = useState<boolean>(false);
 
   const listVoices = async () => {
     const voices = await Speech.getAvailableVoicesAsync();
@@ -61,6 +70,8 @@ export default function Index() {
 
   useEffect(() => {
     const getTextResults = async (): Promise<void> => {
+      setLoading(true);
+      if (!photo || !imageId || !speechSettings || !user) return;
       try {
         // const res = await axios.post(
         //   "https://primate-crucial-blatantly.ngrok-free.app/ocr",
@@ -80,9 +91,30 @@ export default function Index() {
           expoSpeech("hihi haha", speechSettings);
         }, 100);
 
+        await axiosInstance
+          .post("/recognition-results/", {
+            image_id: imageId,
+            recognized_text: "hihi haha",
+            confidence: 1,
+            is_saved_by_user: false,
+          })
+          .then(async (res) => {
+            setImageIdForFeedback(imageId);
+
+            setImageId(null);
+            await axiosInstance.post("/histories", {
+              user_id: user.id,
+              result_id: res.data.id,
+            });
+            setResultId(res.data.id);
+          })
+          .catch((error) => console.log(error));
+
+        setLoading(false);
         if (isCameraScreen) Speech.stop();
       } catch (error) {
         console.log(error);
+        expoSpeech("Đã lỗi", speechSettings);
       }
     };
 
@@ -90,94 +122,147 @@ export default function Index() {
       // readNotification();
       getTextResults();
     }
-  }, [photo, isCameraScreen, speechSettings]);
+  }, [photo, isCameraScreen, speechSettings, imageId, user]);
+
+  const handleSave = async (): Promise<void> => {
+    if (resultId) {
+      await axiosInstance
+        .put(`/recognition-results/${resultId}`, {
+          is_saved_by_user: true,
+        })
+        .then((res) => {
+          console.log(res.data);
+          expoSpeech("Đã lưu thhành công", speechSettings);
+        })
+        .catch((error) => {
+          console.log(error);
+
+          expoSpeech("Lưu bị lỗi", speechSettings);
+        });
+    }
+  };
+
   console.log(user);
   if (!user || !notification) return <LoadingScreen />;
-  if (loading) return <LoadingScreen />;
 
   return (
     <LayoutScreen>
-      <View className="relative">
+      {resultMode ? (
+        <Header screenType="Màn hình phản hồi văn bản" />
+      ) : (
         <Header screenType={photo ? "Màn hình kết quả" : "Màn hình Camera"} />
+      )}
 
-        {photo ? (
-          <View className="w-[300px] h-[400px] mt-8 rounded-[10px] overflow-hidden relative">
-            <Image
-              className="w-full h-full "
-              source={{ uri: "data:image/jpg;base64," + photo.base64 }}
-            />
-            <BlurView
-              intensity={50}
-              tint="light"
-              className="w-full h-full  bg-white absolute top-0 left-0 z-2"
-            >
-              {textResult && (
-                <Text className="p-4 bg-white text-[#333] ">{textResult}</Text>
-              )}
-            </BlurView>
-          </View>
-        ) : (
-          <View className="h-[400px] w-[300px] mt-8 rounded-[10px] ">
-            <CameraModule
-              takePhoto={takePhoto}
-              setTakePhoto={setTakePhoto}
+      {loading ? (
+        <View className="min-h-[300px]">
+          <LoadingComponent />
+        </View>
+      ) : (
+        <>
+          {resultMode ? (
+            <ResultScreen
+              imageId={imageIdForFeedback}
+              resultId={resultId}
+              speechSettings={speechSettings}
               setPhoto={setPhoto}
-              photo={photo}
+              setResultMode={setResultMode}
             />
-          </View>
-        )}
+          ) : (
+            <>
+              {photo ? (
+                <View className="w-[300px] h-[400px] mt-8 rounded-[10px] overflow-hidden relative">
+                  <Image
+                    className="w-full h-full "
+                    source={{ uri: "data:image/jpg;base64," + photo.base64 }}
+                  />
+                  <BlurView
+                    intensity={50}
+                    tint="light"
+                    className="w-full h-full  bg-white absolute top-0 left-0 z-2"
+                  >
+                    {textResult && (
+                      <Text className="p-4 bg-white text-[#333] ">
+                        {textResult}
+                      </Text>
+                    )}
+                  </BlurView>
+                </View>
+              ) : (
+                <View className="h-[400px] w-[300px] mt-8 rounded-[10px] ">
+                  <CameraModule
+                    takePhoto={takePhoto}
+                    setTakePhoto={setTakePhoto}
+                    setPhoto={setPhoto}
+                    photo={photo}
+                    setImageId={setImageId}
+                  />
+                </View>
+              )}
+              <View
+                className={
+                  photo
+                    ? "flex-row justify-between flex-wrap w-full mt-1"
+                    : "flex-row justify-center w-full"
+                }
+              >
+                {photo && (
+                  <TouchableOpacity
+                    onPress={handleSave}
+                    className=" items-center w-[40%] bg-[#28d7f6] rounded-[10px] justify-center"
+                    accessibilityLabel="Lưu kết quả"
+                  >
+                    <MaterialIcons
+                      name="bookmark-border"
+                      size={40}
+                      color="white"
+                    />
+                  </TouchableOpacity>
+                )}
 
-        {photo ? (
-          <View className="w-full mt-12 items-center">
-            <TouchableOpacity
-              className="w-[70%] items-center px-4 py-2 bg-white border border-[#ccc] rounded-[10px]"
-              accessibilityLabel="Quay về màn hình camera"
-              onPress={() => {
-                Speech.stop();
-                setPhoto(null);
-                setTakePhoto(false);
-                setTextResult(null);
-                setIsCameraScreen(true);
-                router.push("/");
-              }}
-            >
-              <Text className="text-xl">Trờ về Camera</Text>
-            </TouchableOpacity>
-          </View>
-        ) : (
-          <TouchableOpacity
-            className="mt-4 items-center"
-            accessibilityLabel="Chụp ảnh văn bản"
-            onPress={() => {
-              setTakePhoto(true);
-              setIsCameraScreen(false);
-            }}
-          >
-            <MaterialIcons name="camera-alt" size={90} color="#fff" />
-          </TouchableOpacity>
-        )}
+                {photo && (
+                  <TouchableOpacity
+                    className=" items-center bg-[#e5c95a] w-[40%]  rounded-[10px] justify-center"
+                    onPress={() => setResultMode(true)}
+                    accessibilityLabel="Phản hồi về kết quả"
+                  >
+                    <MaterialIcons name="comment" size={40} color="white" />
+                  </TouchableOpacity>
+                )}
 
-        {photo && (
-          <TouchableOpacity className="mt-4 items-center ">
-            <Text className="bg-[#0cc0df] px-8 py-4 text-xl text-white rounded-[10px]">
-              Lưu kết quả
-            </Text>
-          </TouchableOpacity>
-        )}
-
-        {photo && (
-          <TouchableOpacity
-            className="mt-2 items-center "
-            onPress={() => router.push("/(tabs)/feedback")}
-          >
-            <Text className="bg-[#e5c95a] px-8 py-4 text-xl text-white rounded-[10px]">
-              Đánh giá kết quả
-            </Text>
-          </TouchableOpacity>
-        )}
-
-        {/* <SupportBlock /> */}
-      </View>
+                {photo ? (
+                  <View className="w-full mt-6 items-center">
+                    <TouchableOpacity
+                      className="w-[40%] items-center bg-white border border-[#ccc] rounded-[10px]"
+                      accessibilityLabel="Quay về màn hình camera"
+                      onPress={() => {
+                        Speech.stop();
+                        setPhoto(null);
+                        setTakePhoto(false);
+                        setTextResult(null);
+                        setIsCameraScreen(true);
+                        router.push("/");
+                      }}
+                    >
+                      <MaterialIcons name="replay" size={60} />
+                    </TouchableOpacity>
+                  </View>
+                ) : (
+                  <TouchableOpacity
+                    className="mt-4 items-center"
+                    accessibilityLabel="Chụp ảnh văn bản"
+                    onPress={() => {
+                      setTakePhoto(true);
+                      setIsCameraScreen(false);
+                    }}
+                  >
+                    <MaterialIcons name="camera-alt" size={90} color="#fff" />
+                  </TouchableOpacity>
+                )}
+              </View>
+            </>
+          )}
+        </>
+      )}
     </LayoutScreen>
   );
 }

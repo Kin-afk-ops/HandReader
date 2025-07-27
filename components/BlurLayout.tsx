@@ -4,7 +4,7 @@ const BlurLayout = ({ children }: { children: React.ReactNode }) => {
     <BlurView
       intensity={50}
       tint="light"
-      className="w-[100%] mt-4 px-4 py-4 bg-white  rounded-[10px] overflow-hidden"
+      className="w-[100%] mt-4 mb-16 px-4 py-4 bg-white  rounded-[10px] overflow-hidden"
     >
       {children}
     </BlurView>

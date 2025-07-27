@@ -31,17 +31,26 @@ const SaveView = () => {
 
   useEffect(() => {
     const getItems = async () => {
-      setLoading(true);
+      if (!saves) {
+        setLoading(true);
+      }
       try {
         if (user) {
           const res = await axiosInstance.get(
             `/histories/save/${user.id}?offset=${offset}&limit=${limit}`
           );
 
-          setSaves(res.data);
+          const newSave = res.data;
+          setSaves((prev) => [
+            ...(prev ?? []), // giữ lại thông báo cũ (nếu null thì dùng [])
+            ...newSave, // thêm các thông báo mới
+          ]);
 
-          // setTotalSaves(res.data.length);
-          setTotalSaves(10);
+          const resTotal = await axiosInstance.get(
+            `/histories/saveLength/${user.id}`
+          );
+
+          setTotalSaves(resTotal.data.total);
         }
       } catch (error) {
         console.log(error);
@@ -52,6 +61,7 @@ const SaveView = () => {
     };
 
     getItems();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, offset]);
 
   const loadSeeMore = () => {
