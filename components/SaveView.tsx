@@ -1,6 +1,5 @@
 import { Text, TouchableOpacity, View } from "react-native";
 import React, { useEffect, useState } from "react";
-import { MaterialIcons } from "@expo/vector-icons";
 import SaveItem from "./SaveItem";
 import { useUser } from "@/contexts/UserContext";
 import LoadingComponent from "./LoadingComponent";

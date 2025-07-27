@@ -1,34 +1,20 @@
-import {
-  BackHandler,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { useCallback, useEffect, useState } from "react";
+import { Text, TouchableOpacity, View } from "react-native";
+import { useEffect, useState } from "react";
 import LayoutScreen from "@/components/LayoutScreen";
 import BlurLayout from "@/components/BlurLayout";
-import SpeedSlider from "@/components/SpeedSlider";
 import CustomSwitchLabelSmall from "@/components/CustomSwitchLabelSmall";
-import SupportBlock from "@/components/SupportBlock";
 import {
   loadSpeechSettings,
   saveSpeechSettings,
 } from "@/utils/speech/speechSettings";
 import expoSpeech from "@/utils/speech/expoSpeech";
 import * as Speech from "expo-speech";
-import { router, useFocusEffect } from "expo-router";
 import Header from "@/components/Header";
 import { MaterialIcons } from "@expo/vector-icons";
-import {
-  loadHightContrastMode,
-  saveHightContrastMode,
-} from "@/utils/hightContrastMode/hightContrastMode";
 import { useHighContrast } from "@/contexts/HighContrastContext";
 import LoadingScreen from "../LoadingScreen";
 
 const Setting = () => {
-  // const [hightContrastMode, setHightContrastMode] = useState<boolean>(false);
   const { mode, setMode } = useHighContrast();
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -44,14 +30,7 @@ const Setting = () => {
       setSpeechSettings(getSetting);
     };
 
-    // const loadHightContrastModeSetting = async (): Promise<void> => {
-    //   const getHightContrastMode = await loadHightContrastMode();
-    //   setHightContrastMode(getHightContrastMode);
-    // };
-
     loadSpeechSetting();
-
-    // loadHightContrastModeSetting();
   }, []);
 
   const reduceSpeed = async (): Promise<void> => {
@@ -62,7 +41,7 @@ const Setting = () => {
       );
     } else {
       setSpeechSettings((prev) => {
-        if (!prev) return null; // hoặc xử lý mặc định
+        if (!prev) return null;
 
         const newRate = Math.max(
           0.25,
@@ -96,16 +75,6 @@ const Setting = () => {
     saveSpeech();
   }, [speechSettings]);
 
-  // useEffect(() => {
-  //   const saveHightContrast = async (): Promise<void> => {
-  //     await saveHightContrastMode(hightContrastMode);
-
-  //     const load = await loadHightContrastMode();
-  //   };
-
-  //   saveHightContrast();
-  // }, [hightContrastMode]);
-
   const increaseSpeed = async (): Promise<void> => {
     if (speechSettings?.rate === 2) {
       expoSpeech(
@@ -114,8 +83,7 @@ const Setting = () => {
       );
     } else {
       setSpeechSettings((prev) => {
-        if (!prev) return null; // hoặc xử lý mặc định
-
+        if (!prev) return null;
         const newRate = Math.min(2, parseFloat((prev.rate + 0.25).toFixed(2)));
 
         setTimeout(() => {
@@ -135,65 +103,6 @@ const Setting = () => {
     }
   };
 
-  const onChangeVoiceGender = (state: boolean): void => {
-    if (state) {
-      setSpeechSettings((prev) => {
-        if (!prev) return null; // hoặc xử lý mặc định
-
-        const newVoice = "vi-vn-x-vie-local";
-
-        setTimeout(() => {
-          expoSpeech(`Đã chuyển giọng đọc văn bản sang nữ`, {
-            voice: newVoice,
-            rate: prev.rate,
-            pitch: prev.pitch,
-            language: prev.language,
-          });
-        }, 100);
-
-        return {
-          ...prev,
-          voice: newVoice,
-        };
-      });
-    } else {
-      setSpeechSettings((prev) => {
-        if (!prev) return null; // hoặc xử lý mặc định
-
-        const newVoice = "vi-vn-x-vid-local";
-
-        setTimeout(() => {
-          expoSpeech(`Đã chuyển giọng đọc văn bản sang nam`, {
-            voice: newVoice,
-            rate: prev.rate,
-            pitch: prev.pitch,
-            language: prev.language,
-          });
-        }, 100);
-
-        return {
-          ...prev,
-          voice: newVoice,
-        };
-      });
-    }
-  };
-
-  // const listVoices = async () => {
-  //   const voices = await Speech.getAvailableVoicesAsync();
-  //   const vietnameseVoices = voices.filter((voice) =>
-  //     voice.language.toLowerCase().startsWith("vi")
-  //   );
-
-  //   expoSpeech("Xin chào mình là Linh đây", {
-  //     voice: "vi-vn-x-vid-local",
-  //     rate: 1.0,
-  //     pitch: 1.0,
-  //     language: "vi-VN",
-  //   });
-  // };
-
-  // listVoices();
   const onChangeHightCOntrastMode = (state: boolean) => {
     if (state) {
       setMode(false);
@@ -252,22 +161,6 @@ const Setting = () => {
 
           <View className="bg-white w-full px-4 py-4 rounded-[10px] mt-8 flex-row items-center">
             <Text className="text-secondary text-xl w-[60%]">
-              Chọn giọng đọc
-            </Text>
-            <View className="w-[40%]">
-              <CustomSwitchLabelSmall
-                label1="Nam"
-                label2="Nữ"
-                stateInitValue={
-                  speechSettings?.voice === "vi-vn-x-vie-local" ? true : false
-                }
-                onToggle={onChangeVoiceGender}
-              />
-            </View>
-          </View>
-
-          <View className="bg-white w-full px-4 py-4 rounded-[10px] mt-8 flex-row items-center">
-            <Text className="text-secondary text-xl w-[60%]">
               Chế độ tương phản cao
             </Text>
             <View className=" w-[40%]">
@@ -280,7 +173,6 @@ const Setting = () => {
             </View>
           </View>
         </BlurLayout>
-        <SupportBlock />
       </View>
     </LayoutScreen>
   );

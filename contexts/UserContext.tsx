@@ -7,8 +7,6 @@ interface User {
   email: string | null;
   created_at: string;
   role: string;
-
-  // thêm các trường khác nếu cần
 }
 
 interface UserContextType {

@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 import React from "react";
 import LayoutScreen from "@/components/LayoutScreen";
 import BlurLayout from "@/components/BlurLayout";

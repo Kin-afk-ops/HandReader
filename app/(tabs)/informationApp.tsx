@@ -1,58 +1,53 @@
-import { Text, TouchableOpacity, View } from "react-native";
+import { Text, View } from "react-native";
 import React from "react";
 import LayoutScreen from "@/components/LayoutScreen";
 import BlurLayout from "@/components/BlurLayout";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import Header from "@/components/Header";
 
 const InformationApp = () => {
-  const handleLogout = async (): Promise<void> => {
-    await AsyncStorage.removeItem("userInfo");
-    console.log("ok");
-  };
-
   return (
     <LayoutScreen>
+      <Header screenType="Thông tin ứng dụng" />
       <BlurLayout>
-        <View className="h-[100%] justify-around">
-          <TouchableOpacity onPress={handleLogout}>
-            <Text>Logout</Text>
-          </TouchableOpacity>
-          <View className="px-4 py-8 rounded-[10px] items-center bg-white ">
-            <Text className="text-third text-3xl font-bold">GIỚI THIỆU</Text>
-            <Text className="text-base mt-2 text-justify">
-              Đây là ứng dụng hỗ trợ người khiếm thị nhận diện chữ viết tay và
-              văn bản in qua camera, sau đó đọc to nội dung bằng giọng nói. Ứng
-              dụng có giao diện đơn giản, hỗ trợ rung và điều khiển bằng giọng
-              nói.
+        <View className="h-full justify-around">
+          {/* Giới thiệu ứng dụng */}
+          <View className="px-4 py-8 rounded-[10px] items-center bg-white shadow-md">
+            <Text className="text-third text-3xl font-bold mb-2">
+              Về Ứng Dụng
+            </Text>
+            <Text className="text-base text-justify leading-relaxed">
+              Ứng dụng hỗ trợ người khiếm thị nhận diện chữ viết tay và văn bản
+              in từ camera, sau đó chuyển đổi thành giọng nói để đọc nội dung.
+              Với giao diện tối giản, trực quan và có hướng dẫn bằng âm thanh,
+              ứng dụng hướng tới khả năng sử dụng thực tế cho người dùng yếu thị
+              lực.
             </Text>
           </View>
 
-          <View className="px-4 py-8 rounded-[10px] items-center bg-white justify-between">
-            <Text className="text-third text-3xl font-bold">
-              Tác giả & Hướng dẫn
+          {/* Thông tin dự án */}
+          <View className="px-4 py-8 rounded-[10px] items-center bg-white shadow-md">
+            <Text className="text-third text-3xl font-bold mb-4">
+              Thông Tin Dự Án
             </Text>
-            <View className="mt-4 w-full">
-              <View className="flex-row w-full">
-                <Text className="font-bold w-[20%]">Tác giả:</Text>
-                <Text className="">Nguyễn Vũ Linh</Text>
+            <View className="space-y-3 w-full">
+              <View className="flex-row">
+                <Text className="font-bold w-[30%]">Tác giả:</Text>
+                <Text className="flex-1">Nguyễn Vũ Linh</Text>
               </View>
-
-              <View className="flex-row w-full">
+              <View className="flex-row">
                 <Text className="font-bold w-[30%]">Hướng dẫn:</Text>
-                <Text className="">TS. Nguyễn Công Danh</Text>
+                <Text className="flex-1">TS. Nguyễn Công Danh</Text>
               </View>
-
-              <View className=" w-full ">
-                <Text className="font-bold">Đơn vị:</Text>
-                <Text className="text-justify">
-                  Khoa Công nghệ phần mềm – Trường CNTT & TT
+              <View className="flex-row">
+                <Text className="font-bold w-[30%]">Đơn vị:</Text>
+                <Text className="flex-1">
+                  Khoa Công nghệ phần mềm – Trường CNTT & Truyền thông
                 </Text>
               </View>
-
-              <View className="flex-row w-full">
-                <Text className="font-bold">Công nghệ:</Text>
-                <Text className="">
-                  React Native, Flask, VietOCR, PostgreSQL
+              <View className="flex-row">
+                <Text className="font-bold w-[30%]">Công nghệ:</Text>
+                <Text className="flex-1">
+                  React Native, Flask, PostgreSQL, VietOCR
                 </Text>
               </View>
             </View>

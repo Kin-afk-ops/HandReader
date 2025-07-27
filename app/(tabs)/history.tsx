@@ -1,15 +1,11 @@
-import { ScrollView, Switch, Text, TouchableOpacity, View } from "react-native";
-import React, { useEffect, useState } from "react";
+import { ScrollView, View } from "react-native";
+import React, { useState } from "react";
 import LayoutScreen from "@/components/LayoutScreen";
 import BlurLayout from "@/components/BlurLayout";
 import SaveView from "@/components/SaveView";
 import CustomSwitchLabelLarge from "@/components/CustomSwitchLabelLarge";
-import { useRouter } from "expo-router";
 import HistoryView from "@/components/HistoryView";
 import Header from "@/components/Header";
-import axiosInstance from "@/api/axiosInstance";
-import { useUser } from "@/contexts/UserContext";
-import LoadingScreen from "../LoadingScreen";
 
 const History = () => {
   const [savedScreen, setSavedScreen] = useState<boolean>(false);

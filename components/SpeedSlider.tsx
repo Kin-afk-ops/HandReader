@@ -1,4 +1,4 @@
-import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import { Text, useWindowDimensions, View } from "react-native";
 
 import { LinearGradient } from "expo-linear-gradient";
 import MultiSlider from "@ptomasroos/react-native-multi-slider";

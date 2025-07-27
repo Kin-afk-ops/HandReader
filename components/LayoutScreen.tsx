@@ -1,13 +1,10 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { ScrollView, View } from "react-native";
-import { useCallback, useState } from "react";
-import { useFocusEffect } from "expo-router";
-import { loadHightContrastMode } from "@/utils/hightContrastMode/hightContrastMode";
+import { View } from "react-native";
 import { useHighContrast } from "@/contexts/HighContrastContext";
 
 const LayoutScreen = ({ children }: { children: React.ReactNode }) => {
-  const { mode, setMode } = useHighContrast();
+  const { mode } = useHighContrast();
 
   return (
     <LinearGradient

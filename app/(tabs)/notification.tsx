@@ -4,15 +4,13 @@ import Header from "@/components/Header";
 import LayoutScreen from "@/components/LayoutScreen";
 import NotificationItem from "@/components/NotificationItem";
 import { useUser } from "@/contexts/UserContext";
-import { FA5Style } from "@expo/vector-icons/build/FontAwesome5";
-import { BlurView } from "expo-blur";
 import { useCallback, useEffect, useState } from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import LoadingScreen from "../LoadingScreen";
+import { Text, TouchableOpacity, View } from "react-native";
 import { useNotification } from "@/contexts/NotificationContext";
 import { useFocusEffect } from "expo-router";
 import { loadSpeechSettings } from "@/utils/speech/speechSettings";
 import * as Speech from "expo-speech";
+import LoadingComponent from "@/components/LoadingComponent";
 
 const Notification = () => {
   const { user } = useUser();
@@ -49,14 +47,13 @@ const Notification = () => {
 
       loadSpeechSetting();
 
-      // Optional cleanup nếu cần
       return () => {};
     }, [])
   );
 
   useEffect(() => {
     const getNotifications = async (): Promise<void> => {
-      setLoading(true);
+      if (!notifications) setLoading(true);
 
       try {
         if (user) {
@@ -84,6 +81,7 @@ const Notification = () => {
       }
     };
     getNotifications();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, offset]);
 
   const loadSeeMore = () => {
@@ -100,7 +98,7 @@ const Notification = () => {
     }
   }, [notification, notifications]);
 
-  if (loading) return <LoadingScreen />;
+  if (loading) return <LoadingComponent />;
 
   return (
     <LayoutScreen>

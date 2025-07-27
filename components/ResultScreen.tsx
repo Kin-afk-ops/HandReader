@@ -8,7 +8,6 @@ import {
 import React, { useEffect, useState } from "react";
 import BlurLayout from "@/components/BlurLayout";
 import { Image } from "expo-image";
-import { MaterialIcons } from "@expo/vector-icons";
 import axiosInstance from "@/api/axiosInstance";
 import { useUser } from "@/contexts/UserContext";
 import expoSpeech from "@/utils/speech/expoSpeech";
@@ -113,24 +112,6 @@ const ResultScreen: React.FC<ChildProps> = ({
         className="mt-4"
       >
         <View className="flex-1">
-          <View className="bg-white px-4 py-2 rounded-[10px]">
-            <Text className="font-bold text-secondary text-2xl text-center">
-              Nội dung văn bản
-            </Text>
-
-            <View className="flex-row items-start mt-4">
-              <Image
-                source={{ uri: image?.image_url }}
-                contentFit="contain"
-                transition={1000}
-                style={{ width: 100, height: 100 }}
-              />
-              <View className="flex-1">
-                <Text>{result?.recognized_text}</Text>
-              </View>
-            </View>
-          </View>
-
           <View className="bg-white px-4 py-2 rounded-[10px] mt-8">
             <Text className="font-bold text-secondary text-2xl text-center">
               Đánh giá kết quả

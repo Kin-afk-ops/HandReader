@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from "react-native";
+import { View } from "react-native";
 import { Tabs } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 
@@ -19,24 +19,23 @@ const _Layout = () => {
       }}
     >
       <Tabs.Screen
-        name="index"
-        options={{
-          href: null,
-        }}
-      />
-
-      <Tabs.Screen
         name="history"
         options={{
           title: "",
           tabBarIcon: ({ color, size }) => (
-            <MaterialIcons name="history" size={30} color={color} />
+            <MaterialIcons
+              name="history"
+              size={30}
+              color={color}
+              accessibilityLabel="Vào màn hình lịch sử và đã lưu"
+              accessible={true}
+            />
           ),
         }}
       />
 
       <Tabs.Screen
-        name="uploadFile"
+        name="index"
         options={{
           title: "",
           tabBarIcon: ({ color }) => (
@@ -55,8 +54,10 @@ const _Layout = () => {
                 shadowRadius: 4,
                 elevation: 10,
               }}
+              accessibilityLabel="Vào màn hình camera"
+              accessible={true}
             >
-              <MaterialIcons name="file-upload" size={46} color="#fff" />
+              <MaterialIcons name="camera-alt" size={46} color="#fff" />
             </View>
           ),
         }}
@@ -74,7 +75,13 @@ const _Layout = () => {
         options={{
           title: "",
           tabBarIcon: ({ color, size }) => (
-            <MaterialIcons name="info-outline" size={30} color={color} />
+            <MaterialIcons
+              name="info-outline"
+              size={30}
+              color={color}
+              accessibilityLabel="Vào màn hình thông tin ứng dụng"
+              accessible={true}
+            />
           ),
         }}
       />
@@ -108,7 +115,7 @@ const _Layout = () => {
       />
 
       <Tabs.Screen
-        name="result"
+        name="splash"
         options={{
           href: null,
         }}

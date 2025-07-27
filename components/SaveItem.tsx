@@ -64,6 +64,7 @@ const SaveItem: React.FC<ChildProps> = ({
     if (isPlaying) {
       Speech.stop();
       setCurrentPlayingId(null);
+      expoSpeech("Đã dừng phát văn bản", speechSettings);
     } else {
       Speech.stop();
       setCurrentPlayingId(save.id);
@@ -90,6 +91,7 @@ const SaveItem: React.FC<ChildProps> = ({
         })
         .then((res) => {
           setIsSave(false);
+          expoSpeech("Đã bỏ lưu văn bản thành công", speechSettings);
         })
         .catch((error) => {
           console.log(error);
@@ -104,6 +106,7 @@ const SaveItem: React.FC<ChildProps> = ({
         })
         .then((res) => {
           setIsSave(true);
+          expoSpeech("Đã lưu văn bản thành công", speechSettings);
         })
         .catch((error) => {
           console.log(error);
@@ -137,7 +140,11 @@ const SaveItem: React.FC<ChildProps> = ({
 
         <TouchableOpacity
           onPress={handleSave}
-          accessibilityLabel="Lưu hoặc bỏ lưu văn bản"
+          accessibilityLabel={
+            isSave
+              ? "Lưu hoặc bỏ lưu văn bản. Văn bản đang lưu"
+              : "Lưu hoặc bỏ lưu văn bản. Văn bản chưa lưu"
+          }
         >
           {isSave ? (
             <MaterialIcons name="bookmark" size={40} color="#ffde59" />

@@ -1,16 +1,11 @@
-import { AntDesign } from "@expo/vector-icons";
 import { CameraType, CameraView, useCameraPermissions } from "expo-camera";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Button, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Button, StyleSheet, Text, View } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import mime from "mime";
+import { SERVER_DOMAIN } from "@env";
 
-import PhotoPreviewSection from "./PhotoPreviewSection";
-import axiosInstance from "@/api/axiosInstance";
 import { useUser } from "@/contexts/UserContext";
-import LoadingScreen from "@/app/LoadingScreen";
-import axios from "axios";
-
 interface ChildProps {
   takePhoto: boolean;
   setTakePhoto: React.Dispatch<React.SetStateAction<boolean>>;
@@ -28,7 +23,6 @@ export default function CameraModule({
   setImageId,
 }: ChildProps) {
   const { user } = useUser();
-  const [loading, setLoading] = useState<boolean>(false);
 
   const [facing, setFacing] = useState<CameraType>("back");
   const [permission, requestPermission] = useCameraPermissions();
@@ -51,8 +45,6 @@ export default function CameraModule({
   ): Promise<any> => {
     const newImageUri = "file:///" + photo.uri.split("file:/").join("");
 
-    const fileUri = photo.uri;
-
     const formData = new FormData();
     formData.append("image", {
       uri: newImageUri,
@@ -64,16 +56,13 @@ export default function CameraModule({
     formData.append("source", "camera");
 
     try {
-      const response = await fetch(
-        "https://evident-kingfish-actual.ngrok-free.app/images",
-        {
-          method: "POST",
-          headers: {
-            Accept: "application/json",
-          },
-          body: formData,
-        }
-      );
+      const response = await fetch(`${SERVER_DOMAIN}/images`, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+        },
+        body: formData,
+      });
 
       const json = await response.json();
       return json;
@@ -127,25 +116,6 @@ export default function CameraModule({
       </View>
     );
   }
-
-  function toggleCameraFacing() {
-    setFacing((current) => (current === "back" ? "front" : "back"));
-  }
-
-  const handleRetakePhoto = () => {
-    setPhoto(null);
-    setTakePhoto(false);
-  };
-
-  // if (photo)
-  //   return (
-  //     <View className="flex-1 justify-center h-full  relative">
-  //       <PhotoPreviewSection
-  //         photo={photo}
-  //         handleRetakePhoto={handleRetakePhoto}
-  //       />
-  //     </View>
-  //   );
 
   return (
     <View className="flex-1 justify-center h-full w-full relative">

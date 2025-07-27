@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 import React, { useCallback, useState } from "react";
 import { MaterialIcons } from "@expo/vector-icons";
 import formatVietnameseDocumentDate from "@/utils/formatVietnameseDate";
@@ -63,6 +63,7 @@ const HistoryItem: React.FC<childProp> = ({
     if (!history || !speechSettings) return;
     if (isPlaying) {
       Speech.stop();
+      expoSpeech("Đã dừng phát văn bản", speechSettings);
       setCurrentPlayingId(null);
     } else {
       Speech.stop();
@@ -90,6 +91,7 @@ const HistoryItem: React.FC<childProp> = ({
         })
         .then((res) => {
           setIsSave(false);
+          expoSpeech("Đã bỏ lưu văn bản thành công", speechSettings);
         })
         .catch((error) => {
           console.log(error);
@@ -104,6 +106,7 @@ const HistoryItem: React.FC<childProp> = ({
         })
         .then((res) => {
           setIsSave(true);
+          expoSpeech("Đã lưu văn bản thành công", speechSettings);
         })
         .catch((error) => {
           console.log(error);
@@ -135,7 +138,11 @@ const HistoryItem: React.FC<childProp> = ({
         </TouchableOpacity>
         <TouchableOpacity
           onPress={handleSave}
-          accessibilityLabel="Lưu hoặc bỏ lưu văn bản"
+          accessibilityLabel={
+            isSave
+              ? "Lưu hoặc bỏ lưu văn bản. Văn bản đang lưu"
+              : "Lưu hoặc bỏ lưu văn bản. Văn bản chưa lưu"
+          }
         >
           {isSave ? (
             <MaterialIcons name="bookmark" size={40} color="#ffde59" />

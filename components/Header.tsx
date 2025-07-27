@@ -5,12 +5,10 @@ import {
   findNodeHandle,
   AccessibilityInfo,
 } from "react-native";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useUser } from "@/contexts/UserContext";
-import axiosInstance from "@/api/axiosInstance";
-import LoadingScreen from "@/app/LoadingScreen";
 import { useNotification } from "@/contexts/NotificationContext";
 
 interface childProps {
@@ -18,8 +16,6 @@ interface childProps {
 }
 
 const Header: React.FC<childProps> = ({ screenType }) => {
-  const { user } = useUser();
-
   const { notification } = useNotification();
   const router = useRouter();
   const titleRef = useRef<Text>(null);
@@ -33,11 +29,6 @@ const Header: React.FC<childProps> = ({ screenType }) => {
 
     return () => clearTimeout(timeout);
   }, [screenType]); // chạy mỗi khi screenType thay đổi (màn hình mới)
-
-  const goToCamera = () => {
-    // Reset về trang camera, có thể thêm logic xóa ảnh cũ nếu cần
-    router.push("/");
-  };
 
   return (
     <View className=" flex-row border-b border-gray-300 justify-between items-center">
@@ -54,21 +45,11 @@ const Header: React.FC<childProps> = ({ screenType }) => {
       </Text>
 
       <View className="flex-row ">
-        {screenType !== "Màn hình Camera" && (
-          <TouchableOpacity
-            accessible={true}
-            accessibilityLabel="Quay về màn hình camera"
-            onPress={goToCamera}
-            className="mr-2"
-          >
-            <MaterialIcons name="camera-alt" size={45} color="#2563eb" />
-          </TouchableOpacity>
-        )}
         {screenType !== "Màn hình thông báo" && (
           <TouchableOpacity
             className="ml-2 relative"
             onPress={() => router.push("/notification")}
-            accessibilityLabel={`Vào màn hình thông báo. Có 1 thông báo mới`}
+            accessibilityLabel={`Vào màn hình thông báo. Có ${notification?.unread} thông báo mới`}
           >
             <MaterialIcons name="notifications" size={45} color="#5f605a" />
             {notification?.unread !== 0 && (

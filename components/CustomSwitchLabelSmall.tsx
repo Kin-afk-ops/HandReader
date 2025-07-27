@@ -1,11 +1,5 @@
 import React, { useState } from "react";
-import {
-  Text,
-  View,
-  Pressable,
-  Animated,
-  useWindowDimensions,
-} from "react-native";
+import { View, Pressable, Animated } from "react-native";
 import { useEffect, useRef } from "react";
 
 type Props = {

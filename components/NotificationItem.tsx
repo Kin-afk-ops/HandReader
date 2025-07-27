@@ -57,7 +57,7 @@ const NotificationItem = ({
   return (
     <TouchableOpacity onPress={() => handleSetRead()}>
       <View
-        accessibilityLabel="content"
+        accessibilityLabel={content}
         className={`${
           itemIsRead ? "bg-white" : "bg-[#5ce1e6]"
         } overflow-hidden w-full`}

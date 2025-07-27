@@ -5,12 +5,11 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useUser } from "@/contexts/UserContext";
 import { generateAutoUsername } from "@/utils/auth/generateAutoUsername";
 import axiosInstance from "@/api/axiosInstance";
-import { ActivityIndicator, View } from "react-native";
 import { useNotification } from "@/contexts/NotificationContext";
 
 const AppInitializer = () => {
   const { user, setUser } = useUser();
-  const { notification, setNotification } = useNotification();
+  const { setNotification } = useNotification();
   const router = useRouter();
 
   useEffect(() => {

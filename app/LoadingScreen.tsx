@@ -1,6 +1,6 @@
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Text, View } from "react-native";
 import React, { useCallback } from "react";
-import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import { useFocusEffect } from "expo-router";
 import expoSpeech from "@/utils/speech/expoSpeech";
 import { loadSpeechSettings } from "@/utils/speech/speechSettings";
@@ -13,10 +13,13 @@ const LoadingScreen = () => {
       const speechLoading = async (): Promise<void> => {
         const getSetting = await loadSpeechSettings();
         expoSpeech("Đang tải dữ liệu", getSetting);
+
+        setTimeout(() => {
+          expoSpeech("Đang thực hiện, xin hãy chờ đợi", getSetting);
+        }, 5000);
       };
 
       speechLoading();
-      // Optional cleanup nếu cần
       return () => {};
     }, [])
   );

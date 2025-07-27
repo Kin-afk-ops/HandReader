@@ -1,9 +1,8 @@
-import { BackHandler, Image, Text, TouchableOpacity, View } from "react-native";
+import { Image, Text, TouchableOpacity, View } from "react-native";
 import LayoutScreen from "@/components/LayoutScreen";
 import { MaterialIcons } from "@expo/vector-icons";
-import SupportBlock from "@/components/SupportBlock";
 import Header from "@/components/Header";
-import { Redirect, useFocusEffect, useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import CameraModule from "@/components/CameraModule";
 import { useCallback, useEffect, useState } from "react";
 import { BlurView } from "expo-blur";
@@ -16,6 +15,9 @@ import { useNotification } from "@/contexts/NotificationContext";
 import axiosInstance from "@/api/axiosInstance";
 import LoadingComponent from "@/components/LoadingComponent";
 import ResultScreen from "@/components/ResultScreen";
+import axios from "axios";
+import { AI_DOMAIN } from "@env";
+import Splash from "./splash";
 
 export default function Index() {
   const router = useRouter();
@@ -38,16 +40,7 @@ export default function Index() {
   );
   const [resultId, setResultId] = useState<string | null>(null);
   const [resultMode, setResultMode] = useState<boolean>(false);
-
-  const listVoices = async () => {
-    const voices = await Speech.getAvailableVoicesAsync();
-    const vietnameseVoices = voices.filter((voice) =>
-      voice.language.toLowerCase().startsWith("vi")
-    );
-    console.log("Vietnamese voices:", vietnameseVoices);
-  };
-
-  // listVoices();
+  const [isReady, setIsReady] = useState<boolean>(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -59,11 +52,12 @@ export default function Index() {
         setTakePhoto(false);
         setTextResult(null);
         setIsCameraScreen(true);
+
+        console.log(getSetting);
       };
 
       loadSpeechSetting();
 
-      // Optional cleanup nếu cần
       return () => {};
     }, [])
   );
@@ -73,28 +67,31 @@ export default function Index() {
       setLoading(true);
       if (!photo || !imageId || !speechSettings || !user) return;
       try {
-        // const res = await axios.post(
-        //   "https://primate-crucial-blatantly.ngrok-free.app/ocr",
-        //   {
-        //     base64_img: photo.base64,
-        //   },
-        //   {
-        //     headers: {
-        //       "Content-Type": "application/json",
-        //     },
-        //   }
-        // );
+        const res = await axios.post(
+          `${AI_DOMAIN}/ocr`,
+          {
+            base64_img: photo.base64,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
 
-        // if (!res?.data.response_message || isCameraScreen) return;
-        setTextResult("hihi haha");
+        if (!res?.data.response_message || isCameraScreen) return;
+        setTextResult(res?.data.response_message);
         setTimeout(() => {
-          expoSpeech("hihi haha", speechSettings);
-        }, 100);
+          expoSpeech(
+            "Đã hoàn tất phần tích. " + res?.data.response_message,
+            speechSettings
+          );
+        }, 5000);
 
         await axiosInstance
           .post("/recognition-results/", {
             image_id: imageId,
-            recognized_text: "hihi haha",
+            recognized_text: res?.data.response_message,
             confidence: 1,
             is_saved_by_user: false,
           })
@@ -119,7 +116,6 @@ export default function Index() {
     };
 
     if (photo) {
-      // readNotification();
       getTextResults();
     }
   }, [photo, isCameraScreen, speechSettings, imageId, user]);
@@ -142,8 +138,13 @@ export default function Index() {
     }
   };
 
-  console.log(user);
-  if (!user || !notification) return <LoadingScreen />;
+  useEffect(() => {
+    if (user && notification && speechSettings) {
+      setIsReady(true);
+    }
+  }, [user, notification, speechSettings]);
+
+  if (!isReady) return <Splash />;
 
   return (
     <LayoutScreen>
@@ -155,7 +156,7 @@ export default function Index() {
 
       {loading ? (
         <View className="min-h-[300px]">
-          <LoadingComponent />
+          <LoadingScreen />
         </View>
       ) : (
         <>
@@ -179,6 +180,7 @@ export default function Index() {
                     intensity={50}
                     tint="light"
                     className="w-full h-full  bg-white absolute top-0 left-0 z-2"
+                    accessibilityLabel={`Kết quả phân tích. ${textResult}`}
                   >
                     {textResult && (
                       <Text className="p-4 bg-white text-[#333] ">
